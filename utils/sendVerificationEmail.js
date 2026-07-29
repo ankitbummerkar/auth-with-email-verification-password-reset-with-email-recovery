@@ -1,0 +1,63 @@
+import nodemailer from "nodemailer";
+import dotenv from "dotenv";
+
+dotenv.config();
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+});
+console.log(process.env.EMAIL_USER);
+console.log(process.env.EMAIL_PASS);
+
+export const sendVerificationEmail = async (email, code) => {
+  await transporter.sendMail({
+    from: process.env.EMAIL_USER,
+    to: email,
+    subject: "Verify Your Email",
+
+    html: `
+      <div style="max-width:500px;margin:auto;font-family:Arial,sans-serif;border:1px solid #ddd;padding:30px;border-radius:8px;">
+      
+        <h2 style="text-align:center;">
+          Verify Your Email
+        </h2>
+
+        <p>Hello,</p>
+
+        <p>
+          Thank you for signing up.
+        </p>
+
+        <p>
+          Please use the verification code below:
+        </p>
+
+        <div
+          style="
+            text-align:center;
+            font-size:32px;
+            font-weight:bold;
+            letter-spacing:8px;
+            padding:20px;
+            background:#f4f4f4;
+            margin:20px 0;
+          "
+        >
+          ${code}
+        </div>
+
+        <p>
+          This code is valid for 24 hours.
+        </p>
+
+        <p>
+          If you didn't create this account, you can ignore this email.
+        </p>
+
+      </div>
+    `,
+  });
+};
