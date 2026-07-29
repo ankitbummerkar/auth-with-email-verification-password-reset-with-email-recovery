@@ -13,12 +13,13 @@ console.log(process.env.EMAIL_USER);
 console.log(process.env.EMAIL_PASS);
 
 export const sendVerificationEmail = async (email, code) => {
-  await transporter.sendMail({
-    from: process.env.EMAIL_USER,
-    to: email,
-    subject: "Verify Your Email",
+  try {
+    await transporter.sendMail({
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: "Verify Your Email",
 
-    html: `
+      html: `
       <div style="max-width:500px;margin:auto;font-family:Arial,sans-serif;border:1px solid #ddd;padding:30px;border-radius:8px;">
       
         <h2 style="text-align:center;">
@@ -59,5 +60,10 @@ export const sendVerificationEmail = async (email, code) => {
 
       </div>
     `,
-  });
+    });
+    console.log("Verification email sent successfully");
+  } catch (error) {
+    console.error("Email Error:", error);
+    throw error;
+  }
 };
