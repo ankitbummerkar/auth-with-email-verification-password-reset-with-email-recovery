@@ -11,6 +11,8 @@ const transporter = nodemailer.createTransport({
     pass: process.env.EMAIL_PASS,
   },
 });
+console.log("SMTP Port:", transporter.options.port);
+console.log("SMTP Host:", transporter.options.host);
 console.log(process.env.EMAIL_USER);
 console.log(process.env.EMAIL_PASS);
 
