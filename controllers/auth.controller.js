@@ -148,7 +148,7 @@ export const forgotpass = async (req, res) => {
 
     user.resetPasswordToken = resetToken;
 
-    user.resetPasswordExpiredAt = Date.now() + 10 * 60 * 1000;
+    user.resetPasswordExpiredAt = Date.now() + 30 * 60 * 1000;
 
     await user.save();
 
