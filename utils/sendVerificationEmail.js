@@ -1,50 +1,37 @@
 import nodemailer from "nodemailer";
 import dotenv from "dotenv";
-import dns from "node:dns";
 
 dotenv.config();
 
-// Prefer IPv4 over IPv6
-dns.setDefaultResultOrder("ipv4first");
-
 const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 587,
+  host: process.env.SMTP_HOST,
+  port: Number(process.env.SMTP_PORT),
   secure: false,
-  requireTLS: true,
   auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS,
   },
 });
-console.log("SMTP Port:", transporter.options.port);
-console.log("SMTP Host:", transporter.options.host);
-console.log(process.env.EMAIL_USER);
-console.log(process.env.EMAIL_PASS);
 
 export const sendVerificationEmail = async (email, code) => {
   try {
     await transporter.sendMail({
-      from: process.env.EMAIL_USER,
+      from: `"${process.env.EMAIL_FROM_NAME}" <${process.env.EMAIL_FROM}>`,
       to: email,
       subject: "Verify Your Email",
 
       html: `
       <div style="max-width:500px;margin:auto;font-family:Arial,sans-serif;border:1px solid #ddd;padding:30px;border-radius:8px;">
-      
+
         <h2 style="text-align:center;">
           Verify Your Email
         </h2>
 
         <p>Hello,</p>
 
-        <p>
-          Thank you for signing up.
-        </p>
+        <p>Thank you for signing up.</p>
 
-        <p>
-          Please use the verification code below:
-        </p>
+        <p>Please use the verification code below:</p>
 
         <div
           style="
@@ -60,20 +47,17 @@ export const sendVerificationEmail = async (email, code) => {
           ${code}
         </div>
 
-        <p>
-          This code is valid for 24 hours.
-        </p>
+        <p>This code is valid for 24 hours.</p>
 
-        <p>
-          If you didn't create this account, you can ignore this email.
-        </p>
+        <p>If you didn't create this account, you can ignore this email.</p>
 
       </div>
-    `,
+      `,
     });
+
     console.log("Verification email sent successfully");
   } catch (error) {
-    console.error("Email Error:", error);
+    console.error("Verification Email Error:", error);
     throw error;
   }
 };
