@@ -1,55 +1,66 @@
-import nodemailer from "nodemailer";
+import axios from "axios";
 import dotenv from "dotenv";
 
 dotenv.config();
 
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST,
-  port: Number(process.env.SMTP_PORT),
-  secure: false,
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-  },
-});
-
 export const sendResetPasswordEmail = async (email, resetLink) => {
   try {
-    await transporter.sendMail({
-      from: `"${process.env.EMAIL_FROM_NAME}" <${process.env.EMAIL_FROM}>`,
-      to: email,
-      subject: "Reset Your Password",
+    await axios.post(
+      "https://api.brevo.com/v3/smtp/email",
+      {
+        sender: {
+          name: process.env.EMAIL_FROM_NAME,
+          email: process.env.EMAIL_FROM,
+        },
 
-      html: `
-      <div style="max-width:500px;margin:auto;font-family:Arial,sans-serif;border:1px solid #ddd;padding:30px;border-radius:8px;">
+        to: [
+          {
+            email,
+          },
+        ],
 
-        <h2>Reset Your Password</h2>
+        subject: "Reset Your Password",
 
-        <p>Click the button below to reset your password.</p>
+        htmlContent: `
+        <div style="max-width:500px;margin:auto;font-family:Arial,sans-serif;border:1px solid #ddd;padding:30px;border-radius:8px;">
 
-        <a
-          href="${resetLink}"
-          style="
-            display:inline-block;
-            padding:12px 20px;
-            background:#2563eb;
-            color:white;
-            text-decoration:none;
-            border-radius:5px;
-          "
-        >
-          Reset Password
-        </a>
+          <h2>Reset Your Password</h2>
 
-        <p>This link expires in 10 minutes.</p>
+          <p>Click the button below to reset your password.</p>
 
-      </div>
-      `,
-    });
+          <a
+            href="${resetLink}"
+            style="
+              display:inline-block;
+              padding:12px 20px;
+              background:#2563eb;
+              color:white;
+              text-decoration:none;
+              border-radius:6px;
+            "
+          >
+            Reset Password
+          </a>
 
-    console.log("Reset email sent successfully");
+          <p>This link expires in 10 minutes.</p>
+
+          <p>If you didn't request this, you can safely ignore this email.</p>
+
+        </div>
+        `,
+      },
+      {
+        headers: {
+          accept: "application/json",
+          "api-key": process.env.BREVO_API_KEY,
+          "content-type": "application/json",
+        },
+      },
+    );
+
+    console.log("Reset Email Sent");
   } catch (error) {
-    console.error("Reset Email Error:", error);
+    console.error("Reset Email Error:", error.response?.data || error.message);
     throw error;
   }
 };
